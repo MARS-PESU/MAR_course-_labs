@@ -2,18 +2,33 @@
 
 **Goal:** Install and use the turtlesim package and rqt tools to prepare for upcoming tutorials.
 
+## Important note:
+> Please note that if you and your friend ar on the same LAN network while working on this lab or any future labs, ROS nodes might behave wierdly.
+> To save yourself from this please add the below lines into your `.bashrc'.
+>
+> Start by making a backup of your current `bashrc`
+> ```bash
+> [ -e bashrc.bak ] || cp ~/.bashrc bashrc.bak
+> ```
+>
+> then open `.bashrc` with
+>
+> ```bash
+> nano ~/.bashrc
+> ```
+>
+> scroll to the last and add
+> ```bash
+> # ---------------- ROS 2 Network Isolation ----------------
+> export ROS_DOMAIN_ID=42
+> export ROS_LOCALHOST_ONLY=1
+> ```
+>make sure domain id is set at random number from 1 to 233
+> save the file and exit
+
 **Tutorial level:** Beginner
 
 start with closing all the previous terminals
-then open a new terminal and run the following:
-``` bash
-echo -e '\n# Auto-set ROS namespace from hostname\nexport ROS_NAMESPACE=$(hostname)\necho -e "\033[1;32m[ROS 2]\033[0m Namespace set to: \033[1;34m$ROS_NAMESPACE\033[0m"' >> ~/.bashrc
-```
-
-``` bash
-echo -e '\n# Auto-set ROS namespace and domain from hostname\nexport ROS_NAMESPACE=$(hostname)\nexport ROS_DOMAIN_ID=$(( $(hostname | cksum | cut -d " " -f1) % 100 ))\necho -e "\033[1;32m[ROS 2]\033[0m Namespace: \033[1;34m$ROS_NAMESPACE\033[0m | Domain ID: \033[1;36m$ROS_DOMAIN_ID\033[0m"' >> ~/.bashrc
-```
-then close all terminals again,
 open a new terminal and then continue
 
 
