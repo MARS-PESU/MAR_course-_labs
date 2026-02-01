@@ -1,162 +1,272 @@
-# Setting up a robot simulation (Gazebo)[](https://docs.ros.org/en/humble/Tutorials/Advanced/Simulators/Gazebo/Gazebo.html#setting-up-a-robot-simulation-gazebo "Link to this heading")
+**You're reading the documentation for an older, but still supported, version of ROS 2. For information on the latest version, please have a look at [Kilted](https://docs.ros.org/en/kilted/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html).**
 
+# Using Xacro to clean up your code[](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#using-xacro-to-clean-up-your-code "Link to this heading")
 
-## [Prerequisites](https://docs.ros.org/en/humble/Tutorials/Advanced/Simulators/Gazebo/Gazebo.html#id1)[](https://docs.ros.org/en/humble/Tutorials/Advanced/Simulators/Gazebo/Gazebo.html#prerequisites "Link to this heading")
+**Goal:** Learn some tricks to reduce the amount of code in a URDF file using Xacro
 
-First of all you should install ROS 2 and Gazebo. You have two options:
+**Tutorial level:** Intermediate
 
-> - Install from deb packages. To check which versions are available from deb packages please check this [table](https://github.com/gazebosim/ros_ign).
+**Time:** 20 minutes
+
+Contents
+
+- [Using Xacro](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#using-xacro)
+    
+- [Constants](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#constants)
+    
+- [Math](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#math)
+    
+- [Macros](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#macros)
+    
+    - [Simple Macro](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#simple-macro)
+        
+    - [Parameterized Macro](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#parameterized-macro)
+        
+- [Practical Usage](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#practical-usage)
+    
+    - [Leg macro](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#leg-macro)
+        
+
+By now, if you’re following all these steps at home with your own robot design, you might be sick of doing all sorts of math to get very simple robot descriptions to parse correctly. Fortunately, you can use the [xacro](https://index.ros.org/p/xacro) package to make your life simpler. It does three things that are very helpful.
+
+> - Constants
 >     
-> - Compile from sources:
+> - Simple Math
 >     
->     - [ROS 2 install instructions](https://docs.ros.org/en/humble/Installation.html)
->         
->     - [Gazebo install instructions](https://gazebosim.org/docs)
->         
+> - Macros
+>     
 
-## [Tasks](https://docs.ros.org/en/humble/Tutorials/Advanced/Simulators/Gazebo/Gazebo.html#id2)[](https://docs.ros.org/en/humble/Tutorials/Advanced/Simulators/Gazebo/Gazebo.html#tasks "Link to this heading")
+In this tutorial, we take a look at all these shortcuts to help reduce the overall size of the URDF file and make it easier to read and maintain.
 
-### [1 Launch the simulation](https://docs.ros.org/en/humble/Tutorials/Advanced/Simulators/Gazebo/Gazebo.html#id3)[](https://docs.ros.org/en/humble/Tutorials/Advanced/Simulators/Gazebo/Gazebo.html#launch-the-simulation "Link to this heading")
+## [Using Xacro](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#id2)[](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#using-xacro "Link to this heading")
 
-In this demo you are going to simulate a simple diff drive robot in Gazebo. You are going to use one of the worlds defined in the Gazebo examples called [visualize_lidar.sdf](https://github.com/gazebosim/gz-sim/blob/main/examples/worlds/visualize_lidar.sdf). To run this example you should execute the following command in a terminal:
+As its name implies, [xacro](https://index.ros.org/p/xacro) is a macro language for XML. The xacro program runs all of the macros and outputs the result. Typical usage looks something like this:
 
-```bash
-ign gazebo -v 4 -r visualize_lidar.sdf
-```
+xacro model.xacro > model.urdf
 
+You can also automatically generate the urdf in a launch file. This is convenient because it stays up to date and doesn’t use up hard drive space. However, it does take time to generate, so be aware that your launch file might take longer to start up.
 
-![../../../../_images/gazebo_diff_drive.png](https://docs.ros.org/en/humble/_images/gazebo_diff_drive.png)
+To run xacro within your launch file, you need to put the `Command` substitution as a parameter to the `robot_state_publisher`.
 
-When the simulation is running you can check the topics provided by Gazebo with the `ign` command line tool:
+path_to_urdf = get_package_share_path('turtlebot3_description') / 'urdf' / 'turtlebot3_burger.urdf'
+robot_state_publisher_node = launch_ros.actions.Node(
+    package='robot_state_publisher',
+    executable='robot_state_publisher',
+    parameters=[{
+        'robot_description': ParameterValue(
+            Command(['xacro ', str(path_to_urdf)]), value_type=str
+        )
+    }]
+)
 
+An easier way to load the robot model is to use the [urdf_launch](https://github.com/ros/urdf_launch) package to automatically load the xacro/urdf.
 
-```bash
-ign topic -l
-```
-/clock
-/gazebo/resource_paths
-/gui/camera/pose
-/gui/record_video/stats
-/model/vehicle_blue/odometry
-/model/vehicle_blue/tf
-/stats
-/world/visualize_lidar_world/clock
-/world/visualize_lidar_world/dynamic_pose/info
-/world/visualize_lidar_world/pose/info
-/world/visualize_lidar_world/scene/deletion
-/world/visualize_lidar_world/scene/info
-/world/visualize_lidar_world/state
-/world/visualize_lidar_world/stats
+from launch import LaunchDescription
+from launch.actions import IncludeLaunchDescription
+from launch.substitutions import PathJoinSubstitution
+from launch_ros.substitutions import FindPackageShare
 
-Since you have not launched an ROS 2 nodes yet, the output from `ros2 topic list` should be free of any robot topics:
+def generate_launch_description():
+    return LaunchDescription([
+        IncludeLaunchDescription(
+            PathJoinSubstitution([FindPackageShare('urdf_launch'), 'launch', 'display.launch.py']),
+            launch_arguments={
+                'urdf_package': 'turtlebot3_description',
+                'urdf_package_path': PathJoinSubstitution(['urdf', 'turtlebot3_burger.urdf'])
+            }.items()
+        )
+    ])
 
-```bash
-ros2 topic list
-```
-/parameter_events
-/rosout
+At the top of the URDF file, you must specify a namespace in order for the file to parse properly. For example, these are the first two lines of a valid xacro file:
 
-### [2 Configuring ROS 2](https://docs.ros.org/en/humble/Tutorials/Advanced/Simulators/Gazebo/Gazebo.html#id4)[](https://docs.ros.org/en/humble/Tutorials/Advanced/Simulators/Gazebo/Gazebo.html#configuring-ros-2 "Link to this heading")
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="firefighter">
 
-To be able to communicate our simulation with ROS 2 you need to use a package called `ros_gz_bridge`. This package provides a network bridge which enables the exchange of messages between ROS 2 and Gazebo Transport. You can install this package by typing:
+## [Constants](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#id3)[](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#constants "Link to this heading")
 
-```bash
-sudo apt-get install ros-humble-ros-ign-bridge
-```
+Let’s take a quick look at our base_link in R2D2.
 
-At this point you are ready to launch a bridge from ROS to Gazebo. In particular you are going to create a bridge for the topic `/model/vehicle_blue/cmd_vel`:
+<link name="base_link">
+  <visual>
+    <geometry>
+      <cylinder length="0.6" radius="0.2"/>
+    </geometry>
+    <material name="blue"/>
+  </visual>
+  <collision>
+    <geometry>
+      <cylinder length="0.6" radius="0.2"/>
+    </geometry>
+  </collision>
+</link>
 
+The information here is a little redundant. We specify the length and radius of the cylinder twice. Worse, if we want to change that, we need to do so in two different places.
 
+Fortunately, xacro allows you to specify properties which act as constants. Instead, of the above code, we can write this.
 
-```bash
-source /opt/ros/humble/setup.bash
-ros2 run ros_gz_bridge parameter_bridge model/vehicle_blue/cmd_vel@geometry_msgs/msg/Twist]ignition.msgs.Twist
-```
+<xacro:property name="width" value="0.2" />
+<xacro:property name="bodylen" value="0.6" />
+<link name="base_link">
+    <visual>
+        <geometry>
+            <cylinder radius="${width}" length="${bodylen}"/>
+        </geometry>
+        <material name="blue"/>
+    </visual>
+    <collision>
+        <geometry>
+            <cylinder radius="${width}" length="${bodylen}"/>
+        </geometry>
+    </collision>
+</link>
 
-For more details about the `ros_gz_bridge` please check this [README](https://github.com/gazebosim/ros_gz/tree/ros2/ros_gz_bridge) .
-
-Once the bridge is running the robot is able to follow your motor commands. There are two options:
-
-- Send a command to the topic using `ros2 topic pub`
+- The two values are specified in the first two lines. They can be defined just about anywhere (assuming valid XML), at any level, before or after they are used. Usually they go at the top.
+    
+- Instead of specifying the actual radius in the geometry element, we use a dollar sign and curly brackets to signify the value.
+    
+- This code will generate the same code shown above.
     
 
-> 
-```bash
-ros2 topic pub /model/vehicle_blue/cmd_vel geometry_msgs/Twist "linear: { x: 0.1 }"
-```
+The value of the contents of the ${} construct are then used to replace the ${}. This means you can combine it with other text in the attribute.
 
-- `teleop_twist_keyboard` package. This node takes keypresses from the keyboard and publishes them as Twist messages. You can install it typing:
+<xacro:property name="robotname" value="marvin" />
+<link name="${robotname}s_leg" />
+
+This will generate
+
+<link name="marvins_leg" />
+
+However, the contents in the ${} don’t have to only be a property, which brings us to our next point…
+
+## [Math](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#id4)[](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#math "Link to this heading")
+
+You can build up arbitrarily complex expressions in the ${} construct using the four basic operations (+,-,*,/), the unary minus, and parenthesis. Examples:
+
+<cylinder radius="${wheeldiam/2}" length="0.1"/>
+<origin xyz="${reflect*(width+.02)} 0 0.25" />
+
+You can also use more than the basic mathematical operations, like `sin` and `cos`.
+
+## [Macros](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#id5)[](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#macros "Link to this heading")
+
+Here’s the biggest and most useful component to the xacro package.
+
+### [Simple Macro](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#id6)[](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#simple-macro "Link to this heading")
+
+Let’s take a look at a simple useless macro.
+
+<xacro:macro name="default_origin">
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+</xacro:macro>
+<xacro:default_origin />
+
+(This is useless, since if the origin is not specified, it has the same value as this.) This code will generate the following.
+
+<origin rpy="0 0 0" xyz="0 0 0"/>
+
+- The name is not technically a required element, but you need to specify it to be able to use it.
+    
+- Every instance of the `<xacro:$NAME />` is replaced with the contents of the `xacro:macro` tag.
+    
+- Note that even though its not exactly the same (the two attributes have switched order), the generated XML is equivalent.
+    
+- If the xacro with a specified name is not found, it will not be expanded and will NOT generate an error.
     
 
-> 
-```bash
-sudo apt-get install ros-humble-teleop-twist-keyboard
-```
-> 
-> The default topic where `teleop_twist_keyboard` is publishing Twist messages is `/cmd_vel` but you can remap this topic to make use of the topic used in the bridge:
-> 
-```bash
-source /opt/ros/humble/setup.bash
-ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r /cmd_vel:=/model/vehicle_blue/cmd_vel
-```
-> This node takes keypresses from the keyboard and publishes them
-> as Twist messages. It works best with a US keyboard layout.
-> ---------------------------
-> Moving around:
->    u    i    o
->    j    k    l
->    m    ,    .
-> 
-> For Holonomic mode (strafing), hold down the shift key:
-> ---------------------------
->    U    I    O
->    J    K    L
->    M    <    >
-> 
-> t : up (+z)
-> b : down (-z)
-> 
-> anything else : stop
-> 
-> q/z : increase/decrease max speeds by 10%
-> w/x : increase/decrease only linear speed by 10%
-> e/c : increase/decrease only angular speed by 10%
-> 
-> CTRL-C to quit
-> 
-> currently:      speed 0.5       turn 1.0
+### [Parameterized Macro](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#id7)[](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#parameterized-macro "Link to this heading")
 
-### [3 Visualizing lidar data in ROS 2](https://docs.ros.org/en/humble/Tutorials/Advanced/Simulators/Gazebo/Gazebo.html#id5)[](https://docs.ros.org/en/humble/Tutorials/Advanced/Simulators/Gazebo/Gazebo.html#visualizing-lidar-data-in-ros-2 "Link to this heading")
+You can also parameterize macros so that they don’t generate the same exact text every time. When combined with the math functionality, this is even more powerful.
 
-The diff drive robot has a lidar. To send the data generated by Gazebo to ROS 2, you need to launch another bridge. In the case the data from the lidar is provided in the Gazebo Transport topic `/lidar2`, which you are going to remap in the bridge. This topic will be available under the topic `/lidar_scan`:
+First, let’s take an example of a simple macro used in R2D2.
 
+<xacro:macro name="default_inertial" params="mass">
+    <inertial>
+            <mass value="${mass}" />
+            <inertia ixx="1e-3" ixy="0.0" ixz="0.0"
+                 iyy="1e-3" iyz="0.0"
+                 izz="1e-3" />
+    </inertial>
+</xacro:macro>
 
+This can be used with the code
 
-```bash
-source /opt/ros/humble/setup.bash
-ros2 run ros_gz_bridge parameter_bridge lidar2@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan --ros-args -r /lidar2:=/laser_scan
-```
+<xacro:default_inertial mass="10"/>
 
-To visualize the data from the lidar in ROS 2 you can use Rviz2:
+The parameters act just like properties, and you can use them in expressions
 
+You can also use entire blocks as parameters too.
 
+<xacro:macro name="blue_shape" params="name *shape">
+    <link name="${name}">
+        <visual>
+            <geometry>
+                <xacro:insert_block name="shape" />
+            </geometry>
+            <material name="blue"/>
+        </visual>
+        <collision>
+            <geometry>
+                <xacro:insert_block name="shape" />
+            </geometry>
+        </collision>
+    </link>
+</xacro:macro>
 
-```bash
-source /opt/ros/humble/setup.bash
-rviz2
-```
+<xacro:blue_shape name="base_link">
+    <cylinder radius=".42" length=".01" />
+</xacro:blue_shape>
 
-Then you need to configure the `fixed frame`:
+- To specify a block parameter, include an asterisk before its parameter name.
+    
+- A block can be inserted using the insert_block command
+    
+- Insert the block as many times as you wish.
+    
 
-![../../../../_images/fixed_frame.png](https://docs.ros.org/en/humble/_images/fixed_frame.png)
+## [Practical Usage](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#id8)[](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#practical-usage "Link to this heading")
 
-And then click in the button “Add” to include a display to visualize the lidar:
+The xacro language is rather flexible in what it allows you to do. Here are a few useful ways that xacro is used in the [R2D2 model](https://github.com/ros/urdf_tutorial/blob/ros2/urdf/08-macroed.urdf.xacro), in addition to the default inertial macro shown above.
 
-![../../../../_images/add_lidar.png](https://docs.ros.org/en/humble/_images/add_lidar.png)
+To see the model generated by a xacro file, run the same command as with previous tutorials:
 
-Now you should see the data from the lidar in Rviz2:
+ros2 launch urdf_tutorial display.launch.py model:=urdf/08-macroed.urdf.xacro
 
-![../../../../_images/rviz2.png](https://docs.ros.org/en/humble/_images/rviz2.png)
+(The launch file has been running the xacro command this whole time, but since there were no macros to expand, it didn’t matter)
 
-## Submission:
-screenshots similar to what is provided in this doc
+### [Leg macro](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#id9)[](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#leg-macro "Link to this heading")
+
+Often you want to create multiple similar looking objects in different locations. You can use a macro and some simple math to reduce the amount of code you have to write, like we do with R2’s two legs.
+
+<xacro:macro name="leg" params="prefix reflect">
+    <link name="${prefix}_leg">
+        <visual>
+            <geometry>
+                <box size="${leglen} 0.1 0.2"/>
+            </geometry>
+            <origin xyz="0 0 -${leglen/2}" rpy="0 ${pi/2} 0"/>
+            <material name="white"/>
+        </visual>
+        <collision>
+            <geometry>
+                <box size="${leglen} 0.1 0.2"/>
+            </geometry>
+            <origin xyz="0 0 -${leglen/2}" rpy="0 ${pi/2} 0"/>
+        </collision>
+        <xacro:default_inertial mass="10"/>
+    </link>
+
+    <joint name="base_to_${prefix}_leg" type="fixed">
+        <parent link="base_link"/>
+        <child link="${prefix}_leg"/>
+        <origin xyz="0 ${reflect*(width+.02)} 0.25" />
+    </joint>
+    <!-- A bunch of stuff cut -->
+</xacro:macro>
+<xacro:leg prefix="right" reflect="1" />
+<xacro:leg prefix="left" reflect="-1" />
+
+- Common Trick 1: Use a name prefix to get two similarly named objects.
+    
+- Common Trick 2: Use math to calculate joint origins. In the case that you change the size of your robot, changing a property with some math to calculate the joint offset will save a lot of trouble.
+    
+- Common Trick 3: Using a reflect parameter, and setting it to 1 or -1. See how we use the reflect parameter to put the legs on either side of the body in the base_to_${prefix}_leg origin.
