@@ -1,6 +1,6 @@
+# Building a movable robot model
 
-
-**Goal:** Learn how to define movable joints in URDF.
+**Goal:** Learn how to define movable joints in URDF, and how to add collision and inertial properties to links, and how to add joint dynamics to joints.
 
 **Tutorial level:** Intermediate
 
@@ -87,13 +87,6 @@ As you move the sliders around in the GUI, the model moves in Rviz. How is this 
 
 ## Adding physical and collision properties[](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Adding-Physical-and-Collision-Properties-to-a-URDF-Model.html#adding-physical-and-collision-properties "Link to this heading")
 
-**Goal:** Learn how to add collision and inertial properties to links, and how to add joint dynamics to joints.
-
-**Tutorial level:** Intermediate
-
-**Time:** 10 minutes
-
-Contents
 
 - [Collision](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Adding-Physical-and-Collision-Properties-to-a-URDF-Model.html#collision)
     
@@ -117,7 +110,7 @@ In this tutorial, we’ll look at how to add some basic physical properties to y
 So far, we’ve only specified our links with a single sub-element, `visual`, which defines (not surprisingly) what the robot looks like. However, in order to get collision detection to work or to simulate the robot, we need to define a `collision` element as well. [Here is the new urdf](https://raw.githubusercontent.com/ros/urdf_tutorial/master/urdf/07-physics.urdf) with collision and physical properties.
 
 Here is the code for our new base link.
-
+``` xml
 <link name="base_link">
     <visual>
       <geometry>
@@ -133,7 +126,7 @@ Here is the code for our new base link.
       </geometry>
     </collision>
   </link>
-
+```
 - The collision element is a direct subelement of the link object, at the same level as the visual tag.
     
 - The collision element defines its shape the same way the visual element does, with a geometry tag. The format for the geometry tag is exactly the same here as with the visual.
@@ -155,7 +148,7 @@ In order to get your model to simulate properly, you need to define several phys
 #### [Inertia](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Adding-Physical-and-Collision-Properties-to-a-URDF-Model.html#id3)[](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Adding-Physical-and-Collision-Properties-to-a-URDF-Model.html#inertia "Link to this heading")
 
 Every link element being simulated needs an inertial tag. Here is a simple one.
-
+``` xml
 <link name="base_link">
   <visual>
     <geometry>
@@ -175,7 +168,7 @@ Every link element being simulated needs an inertial tag. Here is a simple one.
     <inertia ixx="1e-3" ixy="0.0" ixz="0.0" iyy="1e-3" iyz="0.0" izz="1e-3"/>
   </inertial>
 </link>
-
+```
 - This element is also a subelement of the link object.
     
 - The mass is defined in kilograms.
