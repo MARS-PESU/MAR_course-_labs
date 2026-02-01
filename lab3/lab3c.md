@@ -41,13 +41,13 @@ In this tutorial, we take a look at all these shortcuts to help reduce the overa
 ## [Using Xacro](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#id2)[](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#using-xacro "Link to this heading")
 
 As its name implies, [xacro](https://index.ros.org/p/xacro) is a macro language for XML. The xacro program runs all of the macros and outputs the result. Typical usage looks something like this:
-
+```bash
 xacro model.xacro > model.urdf
-
+```
 You can also automatically generate the urdf in a launch file. This is convenient because it stays up to date and doesn’t use up hard drive space. However, it does take time to generate, so be aware that your launch file might take longer to start up.
 
-To run xacro within your launch file, you need to put the `Command` substitution as a parameter to the `robot_state_publisher`.
-
+To run xacro within your launch file, you need to put the `Command` substitution as a parameter to the `robot_state_publisher`
+``` python
 path_to_urdf = get_package_share_path('turtlebot3_description') / 'urdf' / 'turtlebot3_burger.urdf'
 robot_state_publisher_node = launch_ros.actions.Node(
     package='robot_state_publisher',
@@ -58,14 +58,14 @@ robot_state_publisher_node = launch_ros.actions.Node(
         )
     }]
 )
-
+```
 An easier way to load the robot model is to use the [urdf_launch](https://github.com/ros/urdf_launch) package to automatically load the xacro/urdf.
 
 from launch import LaunchDescription
 from launch.actions import IncludeLaunchDescription
 from launch.substitutions import PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
-
+``` python
 def generate_launch_description():
     return LaunchDescription([
         IncludeLaunchDescription(
@@ -76,9 +76,9 @@ def generate_launch_description():
             }.items()
         )
     ])
-
+```
 At the top of the URDF file, you must specify a namespace in order for the file to parse properly. For example, these are the first two lines of a valid xacro file:
-
+``` xml
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="firefighter">
 
@@ -99,11 +99,11 @@ Let’s take a quick look at our base_link in R2D2.
     </geometry>
   </collision>
 </link>
-
+```
 The information here is a little redundant. We specify the length and radius of the cylinder twice. Worse, if we want to change that, we need to do so in two different places.
 
 Fortunately, xacro allows you to specify properties which act as constants. Instead, of the above code, we can write this.
-
+``` xml
 <xacro:property name="width" value="0.2" />
 <xacro:property name="bodylen" value="0.6" />
 <link name="base_link">
@@ -119,7 +119,7 @@ Fortunately, xacro allows you to specify properties which act as constants. Inst
         </geometry>
     </collision>
 </link>
-
+```
 - The two values are specified in the first two lines. They can be defined just about anywhere (assuming valid XML), at any level, before or after they are used. Usually they go at the top.
     
 - Instead of specifying the actual radius in the geometry element, we use a dollar sign and curly brackets to signify the value.
@@ -128,23 +128,23 @@ Fortunately, xacro allows you to specify properties which act as constants. Inst
     
 
 The value of the contents of the ${} construct are then used to replace the ${}. This means you can combine it with other text in the attribute.
-
+``` xml
 <xacro:property name="robotname" value="marvin" />
 <link name="${robotname}s_leg" />
 
 This will generate
 
 <link name="marvins_leg" />
-
+```
 However, the contents in the ${} don’t have to only be a property, which brings us to our next point…
 
 ## [Math](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#id4)[](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#math "Link to this heading")
 
 You can build up arbitrarily complex expressions in the ${} construct using the four basic operations (+,-,*,/), the unary minus, and parenthesis. Examples:
-
+``` xml
 <cylinder radius="${wheeldiam/2}" length="0.1"/>
 <origin xyz="${reflect*(width+.02)} 0 0.25" />
-
+```
 You can also use more than the basic mathematical operations, like `sin` and `cos`.
 
 ## [Macros](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#id5)[](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#macros "Link to this heading")
@@ -154,15 +154,17 @@ Here’s the biggest and most useful component to the xacro package.
 ### [Simple Macro](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#id6)[](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#simple-macro "Link to this heading")
 
 Let’s take a look at a simple useless macro.
-
+``` xml
 <xacro:macro name="default_origin">
     <origin xyz="0 0 0" rpy="0 0 0"/>
 </xacro:macro>
 <xacro:default_origin />
-
+```
 (This is useless, since if the origin is not specified, it has the same value as this.) This code will generate the following.
 
+``` xml
 <origin rpy="0 0 0" xyz="0 0 0"/>
+```
 
 - The name is not technically a required element, but you need to specify it to be able to use it.
     
@@ -178,7 +180,7 @@ Let’s take a look at a simple useless macro.
 You can also parameterize macros so that they don’t generate the same exact text every time. When combined with the math functionality, this is even more powerful.
 
 First, let’s take an example of a simple macro used in R2D2.
-
+``` xml
 <xacro:macro name="default_inertial" params="mass">
     <inertial>
             <mass value="${mass}" />
@@ -187,15 +189,15 @@ First, let’s take an example of a simple macro used in R2D2.
                  izz="1e-3" />
     </inertial>
 </xacro:macro>
-
+```
 This can be used with the code
-
+``` xml
 <xacro:default_inertial mass="10"/>
-
+```
 The parameters act just like properties, and you can use them in expressions
 
 You can also use entire blocks as parameters too.
-
+``` xml
 <xacro:macro name="blue_shape" params="name *shape">
     <link name="${name}">
         <visual>
@@ -215,7 +217,7 @@ You can also use entire blocks as parameters too.
 <xacro:blue_shape name="base_link">
     <cylinder radius=".42" length=".01" />
 </xacro:blue_shape>
-
+```
 - To specify a block parameter, include an asterisk before its parameter name.
     
 - A block can be inserted using the insert_block command
@@ -236,7 +238,7 @@ ros2 launch urdf_tutorial display.launch.py model:=urdf/08-macroed.urdf.xacro
 ### [Leg macro](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#id9)[](https://docs.ros.org/en/humble/Tutorials/Intermediate/URDF/Using-Xacro-to-Clean-Up-a-URDF-File.html#leg-macro "Link to this heading")
 
 Often you want to create multiple similar looking objects in different locations. You can use a macro and some simple math to reduce the amount of code you have to write, like we do with R2’s two legs.
-
+``` xml
 <xacro:macro name="leg" params="prefix reflect">
     <link name="${prefix}_leg">
         <visual>
@@ -264,7 +266,7 @@ Often you want to create multiple similar looking objects in different locations
 </xacro:macro>
 <xacro:leg prefix="right" reflect="1" />
 <xacro:leg prefix="left" reflect="-1" />
-
+```
 - Common Trick 1: Use a name prefix to get two similarly named objects.
     
 - Common Trick 2: Use math to calculate joint origins. In the case that you change the size of your robot, changing a property with some math to calculate the joint offset will save a lot of trouble.
