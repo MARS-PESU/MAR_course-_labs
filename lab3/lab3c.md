@@ -4,9 +4,9 @@
 
 **Goal:** Learn some tricks to reduce the amount of code in a URDF file using Xacro
 
-**Tutorial level:** Intermediate
-
-**Time:** 20 minutes
+### Submission guide-lines:
+We would like you to create a xacro file and then convert it to a urdf file based on the details given below.
+Plase submit th eurdf file you generate.
 
 Contents
 
