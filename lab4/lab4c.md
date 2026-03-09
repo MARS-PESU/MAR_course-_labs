@@ -193,6 +193,118 @@ Inside RViz:
 You should now see the **live camera feed from Gazebo**.
 
 
+## Next steps
+for the next part you might need a xacro version of this:
+
+``` json
+<?xml version="1.0"?>
+
+<robot name="camera_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- ===================== -->
+  <!-- Properties -->
+  <!-- ===================== -->
+
+  <xacro:property name="base_size_x" value="0.2"/>
+  <xacro:property name="base_size_y" value="0.2"/>
+  <xacro:property name="base_size_z" value="0.1"/>
+
+  <xacro:property name="camera_size" value="0.05"/>
+
+  <xacro:property name="camera_x" value="0.1"/>
+  <xacro:property name="camera_y" value="0"/>
+  <xacro:property name="camera_z" value="0.05"/>
+
+  <!-- ===================== -->
+  <!-- Base Link -->
+  <!-- ===================== -->
+
+  <link name="base_link">
+
+    <inertial>
+      <origin xyz="0 0 0"/>
+      <mass value="1.0"/>
+      <inertia ixx="0.1" iyy="0.1" izz="0.1"
+               ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+
+    <visual>
+      <geometry>
+        <box size="${base_size_x} ${base_size_y} ${base_size_z}"/>
+      </geometry>
+    </visual>
+
+    <collision>
+      <geometry>
+        <box size="${base_size_x} ${base_size_y} ${base_size_z}"/>
+      </geometry>
+    </collision>
+
+  </link>
+
+  <!-- ===================== -->
+  <!-- Camera Link -->
+  <!-- ===================== -->
+
+  <link name="camera_link">
+
+    <visual>
+      <geometry>
+        <box size="${camera_size} ${camera_size} ${camera_size}"/>
+      </geometry>
+    </visual>
+
+  </link>
+
+  <!-- ===================== -->
+  <!-- Camera Joint -->
+  <!-- ===================== -->
+
+  <joint name="camera_joint" type="fixed">
+    <parent link="base_link"/>
+    <child link="camera_link"/>
+    <origin xyz="${camera_x} ${camera_y} ${camera_z}"/>
+  </joint>
+
+  <!-- ===================== -->
+  <!-- Gazebo Camera Sensor -->
+  <!-- ===================== -->
+
+  <gazebo reference="camera_link">
+
+    <sensor name="camera" type="camera">
+
+      <update_rate>30</update_rate>
+
+      <camera>
+        <horizontal_fov>1.396</horizontal_fov>
+
+        <image>
+          <width>640</width>
+          <height>480</height>
+          <format>R8G8B8</format>
+        </image>
+
+        <clip>
+          <near>0.1</near>
+          <far>100</far>
+        </clip>
+      </camera>
+
+      <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
+        <camera_name>camera</camera_name>
+        <frame_name>camera_link</frame_name>
+      </plugin>
+
+    </sensor>
+
+  </gazebo>
+
+</robot>
+```
+Try to convert this to urdf based onyour knowledge from prev. labs and check and then use this as referance for the next step
+
+
 ---
 
 # Expected Outcome
@@ -205,3 +317,6 @@ Students should be able to:
 * Visualize camera images in RViz2
 
 ---
+
+
+
