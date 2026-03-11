@@ -13,3 +13,8 @@ in Lab 4 you have 4 tasks
 it has been mentioned in 4d
 
 -- assuming you aren't able to get it all submit a 10s video recording till where you have working..
+
+
+## Jazzy users
+Students who use ubuntu 24 or ros2 jazzy please follow part a and b from the jazzy folder.
+https://github.com/MARS-PESU/MAR_course-_labs/tree/main/lab4/jazzy
