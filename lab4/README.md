@@ -16,5 +16,5 @@ it has been mentioned in 4d
 
 
 ## Jazzy users
-Students who use ubuntu 24 or ros2 jazzy please follow part a and b from the jazzy folder.
+Students who use ubuntu 24 or ros2 jazzy please follow the jazzy folder.
 https://github.com/MARS-PESU/MAR_course-_labs/tree/main/lab4/jazzy
