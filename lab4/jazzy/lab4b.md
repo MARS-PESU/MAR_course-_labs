@@ -459,6 +459,33 @@ Expand
 
 Take a moment to review each entry in `gz_config.yaml` and understand why it is included, as well as the launch file changes.
 
+add the `ros_gz_bridge` to `launch/launch_sim.launch.py`
+``` python
+def generate_launch_description():
+    # Other code
+
+    bridge_config = os.path.join(
+        get_package_share_directory(package_name), 
+        'config', 
+        'gz_bridge.yaml'
+    )
+
+    ros_gz_bridge = Node(
+        package='ros_gz_bridge',
+        executable='parameter_bridge',
+        parameters=[{'config_file': bridge_config}],
+        output='screen'
+    )
+
+    return LaunchDescription([
+        rsp,
+        world_arg,
+        gazebo,
+        ros_gz_bridge, # add this
+        spawn_entity
+    ])
+```
+
 ### Testing control [​](https://articulatedrobotics.xyz/tutorials/mobile-robot/concept-design/concept-gazebo/\#testing-control "Direct link to Testing control")
 
 If we relaunch Gazebo now, our robot will be sitting there, ready to accept a `TwistStamped` command velocity on the `/cmd_vel` topic. The easiest way for us to produce that is with a tool called `teleop_twist_keyboard`.
