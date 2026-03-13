@@ -27,7 +27,7 @@ Download the **house world** or use any Gazebo world.
 Launch Gazebo with ROS support:
 
 ```bash
-gazebo house.world -s libgazebo_ros_factory.so
+gz sim house.world -s libgazebo_ros_factory.so
 ```
 
 Explanation:
@@ -152,9 +152,9 @@ source /opt/ros/jazzy/setup.bash
 Spawn robot:
 
 ```bash
-ros2 run gazebo_ros spawn_entity.py \
--entity camera_bot \
--file camera_robot.urdf
+ros2 run ros_gz_sim create \
+-file camera_robot.urdf \
+-name camera_bot
 ```
 
 This will:
