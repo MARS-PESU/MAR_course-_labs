@@ -1,21 +1,14 @@
 # Lab: Camera Sensor in Gazebo with ROS 2 Jazzy
 
-## 1. Install Required Packages (ROS 2 Jazzy)
-
-Make sure the Gazebo ROS integration packages are installed.
-
-```bash
-sudo apt update
-sudo apt install \
-ros-jazzy-gazebo-ros-pkgs \
-ros-jazzy-gazebo-plugins \
-ros-jazzy-rviz2
+# 1. Install Gazebo Models for World
+## Clone models
+``` bash
+git clone https://github.com/osrf/gazebo_models ~/gazebo_models
 ```
-
-Source ROS:
-
-```bash
-source /opt/ros/jazzy/setup.bash
+## Add path to bashrc
+``` bash
+echo "export GZ_SIM_RESOURCE_PATH=$HOME/gazebo_models" >> ~/.bashrc
+source ~/.bashrc
 ```
 
 ---
@@ -27,19 +20,8 @@ Download the **house world** or use any Gazebo world.
 Launch Gazebo with ROS support:
 
 ```bash
-gz sim house.world -s libgazebo_ros_factory.so
+ros2 launch ros_gz_sim gz_sim.launch.py gz_args:=house.world
 ```
-
-Explanation:
-
-| Part                       | Meaning                                   |
-| -------------------------- | ----------------------------------------- |
-| `gazebo`                   | Starts the Gazebo simulator               |
-| `house.world`              | Loads the environment                     |
-| `libgazebo_ros_factory.so` | Enables ROS 2 to spawn robots dynamically |
-
-First launch may take time because Gazebo downloads models.
-
 ---
 
 # 3. Create the Robot URDF
@@ -106,8 +88,9 @@ Paste the following **URDF version (converted from your Xacro)**.
   <gazebo reference="camera_link">
 
     <sensor type="camera" name="camera">
-
+      <always_on>true</always_on>
       <update_rate>30</update_rate>
+      <visualize>true</visualize>
 
       <camera>
         <horizontal_fov>1.396</horizontal_fov>
@@ -125,13 +108,14 @@ Paste the following **URDF version (converted from your Xacro)**.
 
       </camera>
 
-      <plugin name="camera_controller" filename="libgazebo_ros_camera.so">
-        <camera_name>camera</camera_name>
-        <frame_name>camera_link</frame_name>
-      </plugin>
-
     </sensor>
 
+  </gazebo>
+
+  <gazebo>
+    <plugin name="gz::sim::systems::Sensors" filename="gz-sim-sensors-system">
+      <render_engine>orge2</render_engine>
+    </plugin>
   </gazebo>
 
 </robot>
@@ -145,16 +129,13 @@ Open a **new terminal**.
 
 Source ROS:
 
-```bash
-source /opt/ros/jazzy/setup.bash
-```
-
 Spawn robot:
 
 ```bash
 ros2 run ros_gz_sim create \
 -file camera_robot.urdf \
--name camera_bot
+-name camera_bot \
+-z 1
 ```
 
 This will:
@@ -165,9 +146,25 @@ This will:
 
 You should see a **small cube robot with a camera mounted on top**.
 
+## gazebo check
+``` bash
+gz topic -l
+```
+you should see `<something>/camera/camera/image`
+
+>[!note]
+>Change the `<something>` to complete topic namge
+
 ---
 
 # 5. Check Camera Topics
+
+## ros bridge
+``` bash
+ros2 run ros_gz_bridge parameter_bridge \
+<something>/camera/image@gz.msgs.Image \
+--ros-args -r <something>/camera/image:=/camera/image_raw
+```
 
 List topics:
 
@@ -179,14 +176,12 @@ Expected output:
 
 ```
 /camera/image_raw
-/camera/camera_info
-/clock
 ```
 
 Check camera info:
 
 ```bash
-ros2 topic echo /camera/camera_info
+ros2 topic echo /camera/image_raw --once
 ```
 
 ---
