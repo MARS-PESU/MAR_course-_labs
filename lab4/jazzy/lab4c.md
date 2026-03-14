@@ -1,10 +1,10 @@
 # Lab: Camera Sensor in Gazebo with ROS 2 Jazzy
 
-# 1. Install Gazebo Models for World
+## 1. Install Gazebo Models for World
 
 ---
 
-# 2. Launch Gazebo with a World
+## 2. Launch Gazebo with a World
 
 Download the **house world** or use any Gazebo world.
 
@@ -15,7 +15,7 @@ ros2 launch ros_gz_sim gz_sim.launch.py gz_args:=house.world
 ```
 ---
 
-# 3. Create the Robot URDF
+## 3. Create the Robot URDF
 
 Create file:
 
@@ -114,7 +114,7 @@ Paste the following **URDF version (converted from your Xacro)**.
 
 ---
 
-# 4. Spawn Robot in Gazebo (ROS 2 Jazzy)
+## 4. Spawn Robot in Gazebo (ROS 2 Jazzy)
 
 Open a **new terminal**.
 
@@ -137,7 +137,7 @@ This will:
 
 You should see a **small cube robot with a camera mounted on top**.
 
-## gazebo check
+### gazebo check
 ``` bash
 gz topic -l
 ```
@@ -148,9 +148,9 @@ you should see `<something>/camera/camera/image`
 
 ---
 
-# 5. Check Camera Topics
+## 5. Check Camera Topics
 
-## ros bridge
+### ros bridge
 ``` bash
 ros2 run ros_gz_bridge parameter_bridge \
 <something>/camera/image@gz.msgs.Image \
@@ -179,7 +179,7 @@ ros2 topic echo /camera/image_raw --once
 
 ---
 
-# 6. View Camera Stream
+## 6. View Camera Stream
 
 Open RViz2.
 
@@ -201,7 +201,7 @@ You should see the **live camera feed from Gazebo**.
 
 ---
 
-# 7. Check Camera Frame (Optional)
+## 7. Check Camera Frame (Optional)
 
 You can inspect the TF frame.
 
@@ -213,7 +213,7 @@ This shows the **transform between robot base and camera**.
 
 ---
 
-# Expected Topics from Camera
+## Expected Topics from Camera
 
 | Topic                 | Type                   | Description             |
 | --------------------- | ---------------------- | ----------------------- |
@@ -223,7 +223,7 @@ This shows the **transform between robot base and camera**.
 
 ---
 
-# What Changed for ROS 2 Jazzy
+## What Changed for ROS 2 Jazzy
 
 Compared to older tutorials:
 
