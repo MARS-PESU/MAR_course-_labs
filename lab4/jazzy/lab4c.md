@@ -1,15 +1,6 @@
 # Lab: Camera Sensor in Gazebo with ROS 2 Jazzy
 
 # 1. Install Gazebo Models for World
-## Clone models
-``` bash
-git clone https://github.com/osrf/gazebo_models ~/gazebo_models
-```
-## Add path to bashrc
-``` bash
-echo "export GZ_SIM_RESOURCE_PATH=$HOME/gazebo_models" >> ~/.bashrc
-source ~/.bashrc
-```
 
 ---
 
@@ -173,9 +164,11 @@ ros2 topic list
 ```
 
 Expected output:
-
+you should see the following topics
 ```
 /camera/image_raw
+/camera/camera_info
+/clock
 ```
 
 Check camera info:
