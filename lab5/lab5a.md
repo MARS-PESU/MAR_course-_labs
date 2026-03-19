@@ -10,7 +10,7 @@ Let’s start by installing the demo package and its dependencies.
 $ sudo apt-get install ros-humble-rviz2 ros-humble-turtle-tf2-py ros-humble-tf2-ros ros-humble-tf2-tools ros-humble-turtlesim
 ```
 
-
+#NOTE: pls replace humble with jazzy if you are using jazzy
 
 ## [Running the demo](https://docs.ros.org/en/humble/Tutorials/Intermediate/Tf2/Introduction-To-Tf2.html\#id2) [](https://docs.ros.org/en/humble/Tutorials/Intermediate/Tf2/Introduction-To-Tf2.html\#running-the-demo "Link to this heading")
 
