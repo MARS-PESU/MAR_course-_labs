@@ -1,162 +1,140 @@
-# Setting up a robot simulation (Gazebo)[](https://docs.ros.org/en/humble/Tutorials/Advanced/Simulators/Gazebo/Gazebo.html#setting-up-a-robot-simulation-gazebo "Link to this heading")
+# Introducing `tf2` [](https://docs.ros.org/en/humble/Tutorials/Intermediate/Tf2/Introduction-To-Tf2.html\#introducing-tf2 "Link to this heading")
+
+## [Installing the demo](https://docs.ros.org/en/humble/Tutorials/Intermediate/Tf2/Introduction-To-Tf2.html\#id1) [](https://docs.ros.org/en/humble/Tutorials/Intermediate/Tf2/Introduction-To-Tf2.html\#installing-the-demo "Link to this heading")
+
+Let’s start by installing the demo package and its dependencies.
 
 
-## [Prerequisites](https://docs.ros.org/en/humble/Tutorials/Advanced/Simulators/Gazebo/Gazebo.html#id1)[](https://docs.ros.org/en/humble/Tutorials/Advanced/Simulators/Gazebo/Gazebo.html#prerequisites "Link to this heading")
 
-First of all you should install ROS 2 and Gazebo. You have two options:
-
-> - Install from deb packages. To check which versions are available from deb packages please check this [table](https://github.com/gazebosim/ros_ign).
->     
-> - Compile from sources:
->     
->     - [ROS 2 install instructions](https://docs.ros.org/en/humble/Installation.html)
->         
->     - [Gazebo install instructions](https://gazebosim.org/docs)
->         
-
-## [Tasks](https://docs.ros.org/en/humble/Tutorials/Advanced/Simulators/Gazebo/Gazebo.html#id2)[](https://docs.ros.org/en/humble/Tutorials/Advanced/Simulators/Gazebo/Gazebo.html#tasks "Link to this heading")
-
-### [1 Launch the simulation](https://docs.ros.org/en/humble/Tutorials/Advanced/Simulators/Gazebo/Gazebo.html#id3)[](https://docs.ros.org/en/humble/Tutorials/Advanced/Simulators/Gazebo/Gazebo.html#launch-the-simulation "Link to this heading")
-
-In this demo you are going to simulate a simple diff drive robot in Gazebo. You are going to use one of the worlds defined in the Gazebo examples called [visualize_lidar.sdf](https://github.com/gazebosim/gz-sim/blob/main/examples/worlds/visualize_lidar.sdf). To run this example you should execute the following command in a terminal:
-
-```bash
-ign gazebo -v 4 -r visualize_lidar.sdf
+```
+$ sudo apt-get install ros-humble-rviz2 ros-humble-turtle-tf2-py ros-humble-tf2-ros ros-humble-tf2-tools ros-humble-turtlesim
 ```
 
 
-![../../../../_images/gazebo_diff_drive.png](https://docs.ros.org/en/humble/_images/gazebo_diff_drive.png)
 
-When the simulation is running you can check the topics provided by Gazebo with the `ign` command line tool:
+## [Running the demo](https://docs.ros.org/en/humble/Tutorials/Intermediate/Tf2/Introduction-To-Tf2.html\#id2) [](https://docs.ros.org/en/humble/Tutorials/Intermediate/Tf2/Introduction-To-Tf2.html\#running-the-demo "Link to this heading")
 
+Now that we’ve installed the `turtle_tf2_py` tutorial package let’s run the demo.
+First, open a new terminal and [source your ROS 2 installation](https://docs.ros.org/en/humble/Tutorials/Beginner-CLI-Tools/Configuring-ROS2-Environment.html) so that `ros2` commands will work.
+Then run the following command:
 
-```bash
-ign topic -l
 ```
-/clock
-/gazebo/resource_paths
-/gui/camera/pose
-/gui/record_video/stats
-/model/vehicle_blue/odometry
-/model/vehicle_blue/tf
-/stats
-/world/visualize_lidar_world/clock
-/world/visualize_lidar_world/dynamic_pose/info
-/world/visualize_lidar_world/pose/info
-/world/visualize_lidar_world/scene/deletion
-/world/visualize_lidar_world/scene/info
-/world/visualize_lidar_world/state
-/world/visualize_lidar_world/stats
-
-Since you have not launched an ROS 2 nodes yet, the output from `ros2 topic list` should be free of any robot topics:
-
-```bash
-ros2 topic list
-```
-/parameter_events
-/rosout
-
-### [2 Configuring ROS 2](https://docs.ros.org/en/humble/Tutorials/Advanced/Simulators/Gazebo/Gazebo.html#id4)[](https://docs.ros.org/en/humble/Tutorials/Advanced/Simulators/Gazebo/Gazebo.html#configuring-ros-2 "Link to this heading")
-
-To be able to communicate our simulation with ROS 2 you need to use a package called `ros_gz_bridge`. This package provides a network bridge which enables the exchange of messages between ROS 2 and Gazebo Transport. You can install this package by typing:
-
-```bash
-sudo apt-get install ros-humble-ros-ign-bridge
+$ ros2 launch turtle_tf2_py turtle_tf2_demo.launch.py
 ```
 
-At this point you are ready to launch a bridge from ROS to Gazebo. In particular you are going to create a bridge for the topic `/model/vehicle_blue/cmd_vel`:
 
 
+You will see the turtlesim start with two turtles.
 
-```bash
-source /opt/ros/humble/setup.bash
-ros2 run ros_gz_bridge parameter_bridge model/vehicle_blue/cmd_vel@geometry_msgs/msg/Twist]ignition.msgs.Twist
+![../../../_images/turtlesim_follow1.png](https://docs.ros.org/en/humble/_images/turtlesim_follow1.png)
+
+In the second terminal window type the following command:
+
+```
+$ ros2 run turtlesim turtle_teleop_key
 ```
 
-For more details about the `ros_gz_bridge` please check this [README](https://github.com/gazebosim/ros_gz/tree/ros2/ros_gz_bridge) .
 
-Once the bridge is running the robot is able to follow your motor commands. There are two options:
 
-- Send a command to the topic using `ros2 topic pub`
-    
+Once the turtlesim is started you can drive the central turtle around in the turtlesim using the keyboard arrow keys,
+select the second terminal window so that your keystrokes will be captured to drive the turtle.
 
-> 
-```bash
-ros2 topic pub /model/vehicle_blue/cmd_vel geometry_msgs/Twist "linear: { x: 0.1 }"
+![../../../_images/turtlesim_follow2.png](https://docs.ros.org/en/humble/_images/turtlesim_follow2.png)
+
+You can see that one turtle continuously moves to follow the turtle you are driving around.
+
+## [What is happening?](https://docs.ros.org/en/humble/Tutorials/Intermediate/Tf2/Introduction-To-Tf2.html\#id3) [](https://docs.ros.org/en/humble/Tutorials/Intermediate/Tf2/Introduction-To-Tf2.html\#what-is-happening "Link to this heading")
+
+This demo is using the tf2 library to create three coordinate frames: a `world` frame, a `turtle1` frame, and a `turtle2` frame.
+This tutorial uses a _tf2 broadcaster_ to publish the turtle coordinate frames and a _tf2 listener_ to compute the difference in the turtle frames and move one turtle to follow the other.
+
+## [tf2 tools](https://docs.ros.org/en/humble/Tutorials/Intermediate/Tf2/Introduction-To-Tf2.html\#id4) [](https://docs.ros.org/en/humble/Tutorials/Intermediate/Tf2/Introduction-To-Tf2.html\#tf2-tools "Link to this heading")
+
+Now let’s look at how tf2 is being used to create this demo.
+We can use `tf2_tools` to look at what tf2 is doing behind the scenes.
+
+### [1 Using view\_frames](https://docs.ros.org/en/humble/Tutorials/Intermediate/Tf2/Introduction-To-Tf2.html\#id5) [](https://docs.ros.org/en/humble/Tutorials/Intermediate/Tf2/Introduction-To-Tf2.html\#using-view-frames "Link to this heading")
+
+`view_frames` creates a diagram of the frames being broadcast by tf2 over ROS.
+Note that this utility only works on Linux; if you are Windows, skip to “Using tf2\_echo” below.
+
+```
+$ ros2 run tf2_tools view_frames
+Listening to tf data during 5 seconds...
+Generating graph in frames.pdf file...
 ```
 
-- `teleop_twist_keyboard` package. This node takes keypresses from the keyboard and publishes them as Twist messages. You can install it typing:
-    
 
-> 
-```bash
-sudo apt-get install ros-humble-teleop-twist-keyboard
+
+Here a tf2 listener is listening to the frames that are being broadcast over ROS and drawing a tree of how the frames are connected.
+To view the tree, open the resulting `frames.pdf` with your favorite PDF viewer.
+
+![../../../_images/turtlesim_frames.png](https://docs.ros.org/en/humble/_images/turtlesim_frames.png)
+
+Here we can see three frames that are broadcast by tf2: `world`, `turtle1`, and `turtle2`.
+The `world` frame is the parent of the `turtle1` and `turtle2` frames.
+`view_frames` also reports some diagnostic information about when the oldest and most
+recent frame transforms were received and how fast the tf2 frame is published to tf2 for debugging purposes.
+
+### [2 Using tf2\_echo](https://docs.ros.org/en/humble/Tutorials/Intermediate/Tf2/Introduction-To-Tf2.html\#id6) [](https://docs.ros.org/en/humble/Tutorials/Intermediate/Tf2/Introduction-To-Tf2.html\#using-tf2-echo "Link to this heading")
+
+`tf2_echo` reports the transform between any two frames broadcast over ROS.
+
+Usage:
+
 ```
-> 
-> The default topic where `teleop_twist_keyboard` is publishing Twist messages is `/cmd_vel` but you can remap this topic to make use of the topic used in the bridge:
-> 
-```bash
-source /opt/ros/humble/setup.bash
-ros2 run teleop_twist_keyboard teleop_twist_keyboard --ros-args -r /cmd_vel:=/model/vehicle_blue/cmd_vel
-```
-> This node takes keypresses from the keyboard and publishes them
-> as Twist messages. It works best with a US keyboard layout.
-> ---------------------------
-> Moving around:
->    u    i    o
->    j    k    l
->    m    ,    .
-> 
-> For Holonomic mode (strafing), hold down the shift key:
-> ---------------------------
->    U    I    O
->    J    K    L
->    M    <    >
-> 
-> t : up (+z)
-> b : down (-z)
-> 
-> anything else : stop
-> 
-> q/z : increase/decrease max speeds by 10%
-> w/x : increase/decrease only linear speed by 10%
-> e/c : increase/decrease only angular speed by 10%
-> 
-> CTRL-C to quit
-> 
-> currently:      speed 0.5       turn 1.0
-
-### [3 Visualizing lidar data in ROS 2](https://docs.ros.org/en/humble/Tutorials/Advanced/Simulators/Gazebo/Gazebo.html#id5)[](https://docs.ros.org/en/humble/Tutorials/Advanced/Simulators/Gazebo/Gazebo.html#visualizing-lidar-data-in-ros-2 "Link to this heading")
-
-The diff drive robot has a lidar. To send the data generated by Gazebo to ROS 2, you need to launch another bridge. In the case the data from the lidar is provided in the Gazebo Transport topic `/lidar2`, which you are going to remap in the bridge. This topic will be available under the topic `/lidar_scan`:
-
-
-
-```bash
-source /opt/ros/humble/setup.bash
-ros2 run ros_gz_bridge parameter_bridge lidar2@sensor_msgs/msg/LaserScan[ignition.msgs.LaserScan --ros-args -r /lidar2:=/laser_scan
+$ ros2 run tf2_ros tf2_echo [source_frame] [target_frame]
 ```
 
-To visualize the data from the lidar in ROS 2 you can use Rviz2:
 
 
+Let’s look at the transform of the `turtle2` frame with respect to `turtle1` frame which is equivalent to:
 
-```bash
-source /opt/ros/humble/setup.bash
-rviz2
+```
+$ ros2 run tf2_ros tf2_echo turtle2 turtle1
+At time 1683385337.850619099
+- Translation: [2.157, 0.901, 0.000]
+- Rotation: in Quaternion [0.000, 0.000, 0.172, 0.985]
+- Rotation: in RPY (radian) [0.000, -0.000, 0.345]
+- Rotation: in RPY (degree) [0.000, -0.000, 19.760]
+- Matrix:
+  0.941 -0.338  0.000  2.157
+  0.338  0.941  0.000  0.901
+  0.000  0.000  1.000  0.000
+  0.000  0.000  0.000  1.000
+At time 1683385338.841997774
+- Translation: [1.256, 0.216, 0.000]
+- Rotation: in Quaternion [0.000, 0.000, -0.016, 1.000]
+- Rotation: in RPY (radian) [0.000, 0.000, -0.032]
+- Rotation: in RPY (degree) [0.000, 0.000, -1.839]
+- Matrix:
+  0.999  0.032  0.000  1.256
+ -0.032  0.999 -0.000  0.216
+ -0.000  0.000  1.000  0.000
+  0.000  0.000  0.000  1.000
 ```
 
-Then you need to configure the `fixed frame`:
 
-![../../../../_images/fixed_frame.png](https://docs.ros.org/en/humble/_images/fixed_frame.png)
 
-And then click in the button “Add” to include a display to visualize the lidar:
+You will see the transform displayed as the `tf2_echo` listener receives the frames broadcast over ROS 2.
 
-![../../../../_images/add_lidar.png](https://docs.ros.org/en/humble/_images/add_lidar.png)
+As you drive your turtle around you will see the transform change as the two turtles move relative to each other.
 
-Now you should see the data from the lidar in Rviz2:
+## [rviz2 and tf2](https://docs.ros.org/en/humble/Tutorials/Intermediate/Tf2/Introduction-To-Tf2.html\#id7) [](https://docs.ros.org/en/humble/Tutorials/Intermediate/Tf2/Introduction-To-Tf2.html\#rviz2-and-tf2 "Link to this heading")
 
-![../../../../_images/rviz2.png](https://docs.ros.org/en/humble/_images/rviz2.png)
+`rviz2` is a visualization tool that is useful for examining tf2 frames.
+Let’s look at our turtle frames using `rviz2` by starting it with a configuration file using the `-d` option:
 
-## Submission:
-screenshots similar to what is provided in this doc
+
+
+```
+$ ros2 run rviz2 rviz2 -d $(ros2 pkg prefix --share turtle_tf2_py)/rviz/turtle_rviz.rviz
+```
+
+
+
+![../../../_images/turtlesim_rviz1.png](https://docs.ros.org/en/humble/_images/turtlesim_rviz1.png)
+
+In the side bar you will see the frames broadcast by tf2.
+As you drive the turtle around you will see the frames move in rviz.
+
