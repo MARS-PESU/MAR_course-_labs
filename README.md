@@ -13,7 +13,9 @@ We wish to see the ooutput screenshot of the following:
 4. https://github.com/MARS-PESU/MAR_course-_labs/blob/main/lab5/lab5d.md#4-run- 
   <img width="674" height="575" alt="image" src="https://github.com/user-attachments/assets/941d6f97-1728-492d-afaa-04d933528786" />
 
-5. 
+5. https://github.com/MARS-PESU/MAR_course-_labs/blob/main/lab5/lab5e.md#25-run-
+  <img width="543" height="599" alt="image" src="https://github.com/user-attachments/assets/bea462e5-dffa-4bc5-be2a-3d1e521a359b" />
+
 6. https://github.com/MARS-PESU/MAR_course-_labs/blob/main/lab5/lab5f.md#3-check-the-results-
 
 
