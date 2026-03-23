@@ -7,12 +7,14 @@ There are 6 parts to this which will take you through basics tf2.
 ## LAN Fix
 #NOTE: only do this if many of you are on a common network
 - Make sure you only run this once on any system. once you run the below step please close all terminal and open again
+#### For ROS2 Humble
 ```bash
-echo 'export ROS_DOMAIN_ID=1' >> ~/.bashrc
+echo 'export ROS_LOCALHOST_ONLY=1' >> ~/.bashrc
 ```
-
-
-
+#### For ROS2 Jazzy
+```
+echo "export ROS_AUTOMATIC_DISCOVERY_RANGE=LOCALHOST" >> ~/.bashrc && source ~/.bashrc
+```
 ## Submission
 We wish to see the ooutput screenshot of the following:
 1. https://github.com/MARS-PESU/MAR_course-_labs/blob/main/lab5/lab5a.md#rviz2-and-tf2-
