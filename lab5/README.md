@@ -4,6 +4,14 @@ Hi this is the 5th lab. To your relief it should be way easier campared to the p
 
 There are 6 parts to this which will take you through basics tf2.
 
+## LAN Fix
+#NOTE: only do this if many of you are on a common network
+- Make sure you only run this once on any system. once you run the below step please close all terminal and open again
+```bash
+echo 'export ROS_DOMAIN_ID=1' >> ~/.bashrc
+```
+
+
 
 ## Submission
 We wish to see the ooutput screenshot of the following:
