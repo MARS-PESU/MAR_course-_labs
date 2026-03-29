@@ -246,7 +246,147 @@ $ ros2 launch turtlebot3_navigation2 navigation2.launch.py use_sim_time:=True ma
     - This green arrow is a marker that can specify the destination of the robot.
     - The root of the arrow is `x`, `y` coordinate of the destination, and the angle `θ` is determined by the orientation of the arrow.
     - As soon as x, y, θ are set, TurtleBot3 will start moving to the destination immediately. ![](https://emanual.robotis.com/assets/images/platform/turtlebot3/navigation/tb3_navigation2_rviz_02.png)
-  
-   ## Now for cam and encoder
 
+- - -
+
+before starting the next session plese close all your terminals open as of now.
+
+- - -
+
+## Now finally to understand the working of camera and encoders:
+
+### Launch TurtleBot3 Waffle Pi in Gazebo
+
+Set your model:
+
+``` bash
+export TURTLEBOT3_MODEL=waffle_pi
+```
+
+Launch simulation:
+
+```bash
+ros2 launch turtlebot3_gazebo turtlebot3_world.launch.py
+```
+
+And the navigation too in a different terminal
+
+```bash
+export TURTLEBOT3_MODEL=waffle_pi
+ros2 launch turtlebot3_navigation2 navigation2.launch.py use_sim_time:=True map:=$HOME/map.yaml
+```
+
+You should now see:
+
+- Robot spawned in Gazebo
+- Topics being published (camera, odom, tf)
+
+
+#### topic list
+
+lets listout topics
+``` bash
+ros2 topic list
+```
+<img width="854" height="616" alt="Screenshot from 2026-03-29 19-43-54" src="https://github.com/user-attachments/assets/21cbbb73-9002-489a-ac1d-586aae6fabad" />
+
+---
+
+### Understanding Encoders (Odometry)
+
+In simulation, **wheel encoders are abstracted** into odometry data.
+
+#### Key Topic
+
+/odom
+
+Check it:
+
+```
+ros2 topic echo --once /odom
+```
+
+#### What You’ll See
+
+- `pose.pose.position` → x, y position
+- `pose.pose.orientation` → quaternion
+- `twist.twist.linear` → linear velocity
+- `twist.twist.angular` → angular velocity
+
+#### Concept
+
+Encoders → wheel rotation → robot displacement → odometry
+
+Gazebo computes this using differential drive plugin.
+Now lets visualize it in RVIZ
+
+
+---
+
+### 4. Visualizing Odometry
+
+Run RViz:
+
+```
+rviz2
+```
+
+Add:
+
+- **Odometry display**
+- **TF**
+<img width="520" height="715" alt="Screenshot from 2026-03-29 19-45-12" src="https://github.com/user-attachments/assets/b7398ede-00f4-41fc-ab5a-15662a2142df" />
+<img width="1220" height="901" alt="Screenshot from 2026-03-29 14-37-04" src="https://github.com/user-attachments/assets/4f4f32c5-e6dc-4c99-bc63-7add4c8143a7" />
+
+#NOTE: if you see a yellowish screen open the left panel > open the settings for odom and switch of covariance
+
+You’ll see:
+
+- Robot moving
+- Trajectory updating
+
+now finally start teleop_keyboard and see how the arrow changes with the incoming messages.
+<img width="854" height="616" alt="Screenshot from 2026-03-29 19-45-52" src="https://github.com/user-attachments/assets/56a6f39e-5f3c-462b-9332-6af86b749f63" />
+
+<img width="1135" height="631" alt="Screenshot from 2026-03-29 19-49-24" src="https://github.com/user-attachments/assets/aa4fb85d-9f08-4425-b088-3c79cc6a10a7" />
+
+
+---
+
+### Using the Camera
+
+The Waffle Pi has a simulated RGB camera.
+
+#### Key Topics
+
+/camera/image_raw  
+/camera/camera_info
+
+
+
+---
+
+#### View Camera Feed
+
+ros2 run rqt_image_view rqt_image_view
+
+Select:
+
+```
+/camera/image_raw
+```
+
+you can also view it in RVIZ2
+
+---
+
+### Camera Data Structure
+
+Each image message is:
+
+- Type: `sensor_msgs/msg/Image`
+- Fields:
+    - height, width
+    - encoding (e.g. `rgb8`)
+    - data (pixel array)  
    # To be updated
