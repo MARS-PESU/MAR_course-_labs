@@ -20,8 +20,7 @@ Install TurtleBot3 Packages
 
 Install the required TurtleBot3 Packages.
 
-[Remote PC]
-
+```bash
 $ source /opt/ros/humble/setup.bash
 $ mkdir -p ~/turtlebot3_ws/src
 $ cd ~/turtlebot3_ws/src/
@@ -33,16 +32,15 @@ $ cd ~/turtlebot3_ws
 $ colcon build --symlink-install
 $ echo 'source ~/turtlebot3_ws/install/setup.bash' >> ~/.bashrc
 $ source ~/.bashrc
-
+```
 Environment Configuration
 
     Setup your ROS environment for the Remote PC.
-    [Remote PC]
-
+```bash
     $ echo 'source /usr/share/gazebo/setup.sh' >> ~/.bashrc
     $ echo 'source /opt/ros/humble/setup.bash' >> ~/.bashrc
     $ source ~/.bashrc
-
+```
 
 ## Follow gazebo simulation 
 
