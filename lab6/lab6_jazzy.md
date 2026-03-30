@@ -389,4 +389,3 @@ Each image message is:
     - height, width
     - encoding (e.g. `rgb8`)
     - data (pixel array)  
-   # To be updated
